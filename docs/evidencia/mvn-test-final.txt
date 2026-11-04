@@ -1,0 +1,27 @@
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.universidad.refactoringu11.ArquitecturaPaquetesTest
+16:31:05.888 [main] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 21.0.10
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.531 s -- in com.universidad.refactoringu11.ArquitecturaPaquetesTest
+[INFO] Running com.universidad.refactoringu11.inventario.ClasificadorProductoTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.universidad.refactoringu11.inventario.ClasificadorProductoTest
+[INFO] Running com.universidad.refactoringu11.inventario.EtiquetadoProductoTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.universidad.refactoringu11.inventario.EtiquetadoProductoTest
+[INFO] Running com.universidad.refactoringu11.inventario.InventarioServiceTest
+SALIDA de 17 unidades de Clean Code -> stock final: 3
+ALERTA: Clean Code bajo stock minimo. Reordenar 12 unidades.
+ENTRADA de 10 unidades de Clean Code -> stock final: 30
+SALIDA de 8 unidades de Clean Code -> stock final: 12
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s -- in com.universidad.refactoringu11.inventario.InventarioServiceTest
+[INFO] Running com.universidad.refactoringu11.RefactoringU11ApplicationTests
+2026-11-04T16:31:08.685-05:00  INFO 15024 --- [           main] c.u.r.RefactoringU11ApplicationTests     : Started RefactoringU11ApplicationTests in 0.798 seconds (process running for 3.474)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.892 s -- in com.universidad.refactoringu11.RefactoringU11ApplicationTests
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
