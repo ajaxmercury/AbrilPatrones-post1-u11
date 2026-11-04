@@ -1,0 +1,22 @@
+[INFO] Running com.universidad.refactoringu11.ArquitecturaPaquetesTest
+16:28:57.010 [main] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 21.0.10
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.609 s <<< FAILURE! -- in com.universidad.refactoringu11.ArquitecturaPaquetesTest
+[ERROR] com.universidad.refactoringu11.ArquitecturaPaquetesTest.losPaquetesNoDebenTenerDependenciasCiclicas -- Time elapsed: 1.582 s <<< FAILURE!
+java.lang.AssertionError: 
+Architecture Violation [Priority: MEDIUM] - Rule 'slices matching 'com.universidad.refactoringu11.(*)..' should be free of cycles' was violated (1 times):
+Cycle detected: Slice inventario -> 
+                Slice reportes -> 
+                Slice inventario
+  1. Dependencies of Slice inventario
+    - Field <com.universidad.refactoringu11.inventario.InventarioService.reporteBajoStockService> has type <com.universidad.refactoringu11.reportes.ReporteBajoStockService> in (InventarioService.java:0)
+    - Method <com.universidad.refactoringu11.inventario.InventarioService.setReporteBajoStockService(com.universidad.refactoringu11.reportes.ReporteBajoStockService)> has parameter of type <com.universidad.refactoringu11.reportes.ReporteBajoStockService> in (InventarioService.java:0)
+    - Method <com.universidad.refactoringu11.inventario.InventarioService.procesarNotificacion(com.universidad.refactoringu11.inventario.Producto, int, int)> calls method <com.universidad.refactoringu11.reportes.ReporteBajoStockService.generarReporte()> in (InventarioService.java:76)
+  2. Dependencies of Slice reportes
+    - Constructor <com.universidad.refactoringu11.reportes.ReporteBajoStockService.<init>(com.universidad.refactoringu11.inventario.InventarioService)> has parameter of type <com.universidad.refactoringu11.inventario.InventarioService> in (ReporteBajoStockService.java:0)
+    - Field <com.universidad.refactoringu11.reportes.ReporteBajoStockService.inventarioService> has type <com.universidad.refactoringu11.inventario.InventarioService> in (ReporteBajoStockService.java:0)
+	at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+	at com.tngtech.archunit.lang.ArchRule$Assertions.check(ArchRule.java:86)
+	at com.tngtech.archunit.lang.ArchRule$Factory$SimpleArchRule.check(ArchRule.java:165)
+	at com.tngtech.archunit.lang.syntax.ObjectsShouldInternal.check(ObjectsShouldInternal.java:81)
+	at com.tngtech.archunit.library.dependencies.SliceRule.check(SliceRule.java:81)
+	at com.universidad.refactoringu11.ArquitecturaPaquetesTest.losPaquetesNoDebenTenerDependenciasCiclicas(ArquitecturaPaquetesTest.java:18)

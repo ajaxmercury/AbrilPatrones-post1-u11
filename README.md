@@ -147,4 +147,79 @@ Esta solución aporta ventajas significativas:
 
 ---
 
-*(La Parte 2 se documentará tras la integración del módulo de reportes y la prueba de arquitectura)*
+---
+
+## Parte 2: Diagnóstico y Resolución de Acoplamiento entre Paquetes
+
+### 1. Diagnóstico del Acoplamiento con ArchUnit (En Rojo)
+
+Al incorporar el módulo `reportes` para alertar cuando un producto cae bajo el stock mínimo, se introdujo una dependencia bidireccional entre paquetes:
+1. `reportes.ReporteBajoStockService` depende de `inventario.InventarioService` (inyección en constructor para consultar productos).
+2. `inventario.InventarioService` depende de `reportes.ReporteBajoStockService` (inyección por setter para disparar `generarReporte()`).
+
+#### Diagrama de Paquetes ANTES de Resolver el Ciclo (Dependencia Cíclica):
+```mermaid
+graph LR
+    subgraph "com.universidad.refactoringu11"
+        subgraph "inventario (Dominio)"
+            InventarioService
+        end
+        subgraph "reportes (Servicio Secundario / Infra)"
+            ReporteBajoStockService
+        end
+    end
+
+    InventarioService -->|Usa / setter| ReporteBajoStockService
+    ReporteBajoStockService -->|Usa / constructor| InventarioService
+
+    style InventarioService fill:#ffcccc,stroke:#cc0000
+    style ReporteBajoStockService fill:#ffcccc,stroke:#cc0000
+```
+
+#### Representación ASCII:
+```text
+  +-------------------------------------------------+
+  |        com.universidad.refactoringu11           |
+  |                                                 |
+  |  +-------------------+   usa / setter   +-----+ |
+  |  |    inventario     | ---------------> |     | |
+  |  | InventarioService |                  | rep | |
+  |  |                   | <--------------- |     | |
+  |  +-------------------+ usa/constructor +-----+ |
+  |                              (CICLO)            |
+  +-------------------------------------------------+
+```
+
+#### Salida Real de la Prueba de Arquitectura en Fallo (`mvn test -Dtest=ArquitecturaPaquetesTest`):
+```text
+[INFO] Running com.universidad.refactoringu11.ArquitecturaPaquetesTest
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.609 s <<< FAILURE! -- in com.universidad.refactoringu11.ArquitecturaPaquetesTest
+[ERROR] com.universidad.refactoringu11.ArquitecturaPaquetesTest.losPaquetesNoDebenTenerDependenciasCiclicas -- Time elapsed: 1.582 s <<< FAILURE!
+java.lang.AssertionError: 
+Architecture Violation [Priority: MEDIUM] - Rule 'slices matching 'com.universidad.refactoringu11.(*)..' should be free of cycles' was violated (1 times):
+Cycle detected: Slice inventario -> 
+                Slice reportes -> 
+                Slice inventario
+  1. Dependencies of Slice inventario
+    - Field <com.universidad.refactoringu11.inventario.InventarioService.reporteBajoStockService> has type <com.universidad.refactoringu11.reportes.ReporteBajoStockService> in (InventarioService.java:0)
+    - Method <com.universidad.refactoringu11.inventario.InventarioService.setReporteBajoStockService(com.universidad.refactoringu11.reportes.ReporteBajoStockService)> has parameter of type <com.universidad.refactoringu11.reportes.ReporteBajoStockService> in (InventarioService.java:0)
+    - Method <com.universidad.refactoringu11.inventario.InventarioService.procesarNotificacion(com.universidad.refactoringu11.inventario.Producto, int, int)> calls method <com.universidad.refactoringu11.reportes.ReporteBajoStockService.generarReporte()> in (InventarioService.java:76)
+  2. Dependencies of Slice reportes
+    - Constructor <com.universidad.refactoringu11.reportes.ReporteBajoStockService.<init>(com.universidad.refactoringu11.inventario.InventarioService)> has parameter of type <com.universidad.refactoringu11.inventario.InventarioService> in (ReporteBajoStockService.java:0)
+    - Field <com.universidad.refactoringu11.reportes.ReporteBajoStockService.inventarioService> has type <com.universidad.refactoringu11.inventario.InventarioService> in (ReporteBajoStockService.java:0)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+```
+
+#### Manejo del Ciclo en Spring Boot 3 (`@Lazy`):
+Spring Boot 3 desactiva por defecto las dependencias circulares a nivel de contenedor (`BeanCurrentlyInCreationException`). Para permitir la verificación del contexto (`contextLoads`) sin enmascarar el ciclo arquitectónico detectado por ArchUnit, se utilizó `@Lazy` en el constructor de `ReporteBajoStockService`:
+```java
+public ReporteBajoStockService(@Lazy InventarioService inventarioService) {
+    this.inventarioService = inventarioService;
+}
+```
+Esto permite a Spring generar un proxy dinámico en tiempo de arranque sin modificar la propiedad global `spring.main.allow-circular-references`, manteniendo la prueba `RefactoringU11ApplicationTests` en verde y dejando que la regla arquitectónica de ArchUnit sea quien diagnostique el problema estructural.
+
+*(El Paso 3 documentará la inversión de dependencias con NotificadorBajoStock)*
+
